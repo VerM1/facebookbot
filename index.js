@@ -112,7 +112,6 @@ function eventsMessage(recipientId, text) {
                 var nombreEvento = eventos.datos.eventos[i].marca;
                 var imageUrl = eventos.datos.eventos[i].imagen_mobile;
                 var greatImageUrl = eventos.datos.eventos[i].imagen_destacado_mobile;
-                imagen_destacado_mobile
                 var message = {
                     "attachment": {
                         "type": "template",
