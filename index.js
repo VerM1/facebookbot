@@ -34,14 +34,14 @@ app.post('/webhook', function (req, res) {
                 if(values[0] === 'eventos'){
                     obtenerBenecifiosEventos('id').then(function(response) {
                         console.log('Promise Resolved!!!!!');
-                        console.log("Eventos: "+eventos);
+                        console.log("Eventos: "+response);
 
                         /*console.log("Total eventos: *" +eventos.datos.eventos.length);
                         for(i = 0; i < eventos.datos.eventos.length; i++){
                             console.log(eventos.datos.eventos[i].marca);
                         }*/
                     }, function(error){
-                        console.error(error);
+                        console.error("Error en promesa: "+error);
                     });
                 }else{
                     sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
@@ -109,7 +109,7 @@ function kittenMessage(recipientId, text) {
     return false;   
 };
 
-function obtenerBenecifiosEventos(id) {
+var obtenerBenecifiosEventos = function(id) {
     var deferred = q.defer();
     var header = {
         Authorization: "Basic ZXZlcmlzOmV2ZXJpc2FwcHNAdGVsZWZvbmljYS5jb20=",
@@ -130,7 +130,7 @@ function obtenerBenecifiosEventos(id) {
     return deferred.promise;
 };
 
-function clienteApigee(options){
+var clienteApigee = function(options){
     var deferred = q.defer();
     request(options, function (error, salida) {
         try {
