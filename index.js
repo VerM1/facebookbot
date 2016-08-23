@@ -33,7 +33,8 @@ app.post('/webhook', function (req, res) {
                 var values = event.message.text.split(' ');
                 if(values[0] === 'eventos'){
                     obtenerBenecifiosEventos(true).then(function(response) {
-                        var eventos = JSON.parse(response);
+                        //var eventos = JSON.parse(response);
+                        var eventos = JSON.stringify(response);
                         console.log(eventos);
                         /*
                         console.log("Total eventos: *" +eventos.datos.eventos.length);
