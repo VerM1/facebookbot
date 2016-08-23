@@ -32,16 +32,15 @@ app.post('/webhook', function (req, res) {
 			if (!kittenMessage(event.sender.id, event.message.text)) {
                 var values = event.message.text.split(' ');
                 if(values[0] === 'eventos'){
-                    obtenerBenecifiosEventos('id').then(function(response) {
+                    obtenerBenecifiosEventos(true).then(function(response) {
                         console.log('Promise Resolved!!!!!');
                         console.log("Eventos: "+response);
-
                         /*console.log("Total eventos: *" +eventos.datos.eventos.length);
-                        for(i = 0; i < eventos.datos.eventos.length; i++){
-                            console.log(eventos.datos.eventos[i].marca);
-                        }*/
+                         for(i = 0; i < eventos.datos.eventos.length; i++){
+                         console.log(eventos.datos.eventos[i].marca);
+                         }*/
                     }, function(error){
-                        console.error("Error en promesa: "+error);
+                        console.log("Error en promesa: "+error);
                     });
                 }else{
                     sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
@@ -110,7 +109,7 @@ function kittenMessage(recipientId, text) {
 };
 
 var obtenerBenecifiosEventos = function(id) {
-    var deferred = q.defer();
+    var defer = q.defer();
     var header = {
         Authorization: "Basic ZXZlcmlzOmV2ZXJpc2FwcHNAdGVsZWZvbmljYS5jb20=",
         'Content-Type' : 'application/json'
@@ -121,13 +120,13 @@ var obtenerBenecifiosEventos = function(id) {
         headers : header
     };
     clienteApigee(options).then(function(response) {
-        deferred.resolve(response);
+        defer.resolve(response);
         console.log('Promise Resolved!');
     }, function(error){
-        deferred.reject(error);
+        defer.reject(error);
         console.log('Promise Rejected!', error);
     });
-    return deferred.promise;
+    return defer.promise;
 };
 
 var clienteApigee = function(options){
@@ -135,13 +134,9 @@ var clienteApigee = function(options){
     request(options, function (error, salida) {
         try {
             var response = JSON.stringify(JSON.parse(salida.body));
-            //console.log('Response Bueno Apigee',response);
-            console.log('Response Bueno Apigee');
             deferred.resolve(response);
         }catch(error){
             var response = salida.body;
-            //console.log('Response Malo Apigee',response);
-            console.log('Response Malo Apigee');
             deferred.reject(error);
         }
     });
