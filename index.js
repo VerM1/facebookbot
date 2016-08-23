@@ -33,8 +33,10 @@ app.post('/webhook', function (req, res) {
                 var values = event.message.text.split(' ');
                 if(values[0] === 'eventos'){
                     obtenerBenecifiosEventos(true).then(function(response) {
-                        console.log('Promise Resolved!!!!!');
-                        console.log(response.datos);
+                        console.log('1');
+                        console.log(JSON.parse(response.datos));
+                        console.log('2');
+                        console.log(JSON.stringify(response.datos));
                         /*console.log("Total eventos: *" +eventos.datos.eventos.length);
                          for(i = 0; i < eventos.datos.eventos.length; i++){
                          console.log(eventos.datos.eventos[i].marca);
@@ -133,7 +135,7 @@ var clienteApigee = function(options){
     var deferred = q.defer();
     request(options, function (error, salida) {
         try {
-            var response = JSON.stringify(JSON.parse(salida.body));
+            var response = salida.body;
             deferred.resolve(response);
         }catch(error){
             var response = salida.body;
