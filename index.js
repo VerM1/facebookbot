@@ -114,8 +114,8 @@ function servicioEventos(){
 }
 function apigeeClient(endpoint, args){
     client.get(endpoint, args, function (data, response) {
-        console.log(data);
-        console.log(response);
+        //console.log(data);
+        console.log("RESPONSE:"+response);
         return response;
     }).on('error', function (err) {
         console.log("Error: "+err);
