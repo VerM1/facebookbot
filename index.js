@@ -34,12 +34,10 @@ app.post('/webhook', function (req, res) {
                 if(values[0] === 'eventos'){
                     obtenerBenecifiosEventos(true).then(function(response) {
                         var eventos = JSON.parse(response);
-                        //var eventos = JSON.stringify(response);
-                        console.log(eventos);
-
-                        console.log("Total eventos: *" +eventos.datos.eventos.length);
                         for(var i = 0; i < eventos.datos.eventos.length; i++){
                             console.log(eventos.datos.eventos[i].marca);
+                            var nombreEvento = eventos.datos.eventos[i].marca;
+                            sendMessage(event.sender.id, {text: "Se encuentra disponible: " + nombreEvento});
                         }
                     }, function(error){
                         console.log("Error en promesa: "+error);
