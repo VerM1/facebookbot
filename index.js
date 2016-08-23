@@ -130,14 +130,6 @@ function obtenerBenecifiosEventos(id) {
     return deferred.promise;
 };
 
-
-var deferred = q.defer();
-setTimeout(function() {
-    deferred.resolve('hello world');
-}, 500);
-
-return deferred.promise;
-
 function clienteApigee(options){
     var deferred = q.defer();
     request(options, function (error, salida) {
