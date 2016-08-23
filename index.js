@@ -32,7 +32,7 @@ app.post('/webhook', function (req, res) {
                 var values = event.message.text.split(' ');
                 if(values[0] === 'eventos'){
                     var eventos = obtenerBenecifiosEventos('id');
-                    console.log(eventos);
+                    console.log(eventos.datos);
                     /*
                     console.log("Total eventos: *" +eventos.datos.eventos.length);
                     for(i = 0; i < eventos.datos.eventos.length; i++){
@@ -105,7 +105,6 @@ function kittenMessage(recipientId, text) {
 };
 
 var obtenerBenecifiosEventos = function(id) {
-
     var header = {
         Authorization: "Basic ZXZlcmlzOmV2ZXJpc2FwcHNAdGVsZWZvbmljYS5jb20=",
         'Content-Type' : 'application/json'
@@ -115,15 +114,14 @@ var obtenerBenecifiosEventos = function(id) {
         method: 'GET',
         headers : header
     };
-    var cliente = clienteApigee(options);
-    return cliente
+    return clienteApigee(options);
 };
 
 
 function clienteApigee(options){
     request(options, function (error, salida) {
         try {
-            var response = salida.body;
+            var response = JSON.parse(salida.body);
             console.log('Response Bueno Apigee',response);
             return response;
         }catch(error){
