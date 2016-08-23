@@ -1,10 +1,8 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request');
-var Client = require('node-rest-client').Client;
 
 var app = express();
-var client = new Client();
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -31,7 +29,7 @@ app.post('/webhook', function (req, res) {
         var event = events[i];
         if (event.message && event.message.text) {
 			if (!kittenMessage(event.sender.id, event.message.text)) {
-                console.log("Servicio Eventos***: "+servicioEventos());
+                console.log("Servicio Eventos***: "+obtenerBenecifiosEventos());
 				sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
 			}
 		}else if (event.postback) {
@@ -101,25 +99,31 @@ function kittenMessage(recipientId, text) {
     return false;   
 };
 
+var obtenerBenecifiosEventos = function(id) {
 
-
-function servicioEventos(){
-    var endpoint = "https://api.movistar.cl/catalog/V2/loyalty/benefits/${id}?apikey=";
-    var args = {
-        path: { "id": "events" },
-        parameters: { apikey: "w8kfm8dYR59V3Ithu6mw3CTUhD9bGhzv"},
-        headers: { "Authorization": "Basic ZXZlcmlzOmV2ZXJpc2FwcHNAdGVsZWZvbmljYS5jb20=", "Content-type": "application/json" }
+    var header = {
+        Authorization: "Basic ZXZlcmlzOmV2ZXJpc2FwcHNAdGVsZWZvbmljYS5jb20=",
+        'Content-Type' : 'application/json'
     };
-    return apigeeClient(endpoint, args);
-}
-function apigeeClient(endpoint, args){
-    client.get(endpoint, args, function (data, response) {
-        //console.log(data);
-        console.log("RESPONSE:"+response.data.datos);
-        return response;
-    }).on('error', function (err) {
-        console.log("Error 1: "+err);
-        console.log('something went wrong on the request', err.request.options);
+    var options = {
+        uri: 'https://api.movistar.cl/catalog/V2/loyalty/benefits/'+id,
+        method: 'GET',
+        headers : header
+    };
+    return clienteApigee(options);
+};
+
+
+function clienteApigee(options){
+    request(options, function (error, salida) {
+        try {
+            var response = JSON.parse(salida.body);
+            console.log('Response Bueno Apigee',response);
+            return response;
+        }catch(error){
+            var response = salida.body;
+            console.log('Response Malo Apigee',response);
+            return response;
+        }
     });
 }
-
