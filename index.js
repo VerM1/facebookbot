@@ -123,7 +123,7 @@ var obtenerBenecifiosEventos = function(id) {
 function clienteApigee(options){
     request(options, function (error, salida) {
         try {
-            var response = JSON.parse(salida.body);
+            var response = salida.body;
             console.log('Response Bueno Apigee',response);
             return response;
         }catch(error){
