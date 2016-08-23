@@ -39,11 +39,6 @@ app.post('/webhook', function (req, res) {
     res.sendStatus(200);
 });
 
-// handling client error events
-client.on('error', function (err) {
-    console.error('Something went wrong on the client', err);
-});
-
 // generic function sending messages
 function sendMessage(recipientId, message) {
     request({
