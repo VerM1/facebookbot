@@ -122,8 +122,8 @@ function obtenerBenecifiosEventos(id) {
     };
     clienteApigee(options).then(function(response) {
         deferred.resolve(response);
-        console.log('Promise Resolved!', response);
-    },function(error){
+        console.log('Promise Resolved!');
+    }, function(error){
         deferred.reject(error);
         console.log('Promise Rejected!', error);
     });
@@ -143,11 +143,13 @@ function clienteApigee(options){
     request(options, function (error, salida) {
         try {
             var response = JSON.stringify(JSON.parse(salida.body));
-            console.log('Response Bueno Apigee',response);
+            //console.log('Response Bueno Apigee',response);
+            console.log('Response Bueno Apigee');
             deferred.resolve(response);
         }catch(error){
             var response = salida.body;
-            console.log('Response Malo Apigee',response);
+            //console.log('Response Malo Apigee',response);
+            console.log('Response Malo Apigee');
             deferred.reject(error);
         }
     });
