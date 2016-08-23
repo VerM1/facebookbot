@@ -32,7 +32,7 @@ app.post('/webhook', function (req, res) {
                 var values = event.message.text.split(' ');
                 if(values[0] === 'eventos'){
                     var eventos = obtenerBenecifiosEventos('id');
-                    console.log(eventos.datos);
+                    //console.log(eventos.datos);
                     /*
                     console.log("Total eventos: *" +eventos.datos.eventos.length);
                     for(i = 0; i < eventos.datos.eventos.length; i++){
@@ -121,7 +121,7 @@ function obtenerBenecifiosEventos(id) {
 function clienteApigee(options){
     request(options, function (error, salida) {
         try {
-            var response = JSON.parse(salida.body);
+            var response = JSON.stringify(JSON.parse(salida.body));
             console.log('Response Bueno Apigee',response);
             return response;
         }catch(error){
