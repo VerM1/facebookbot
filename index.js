@@ -33,14 +33,13 @@ app.post('/webhook', function (req, res) {
                 var values = event.message.text.split(' ');
                 if(values[0] === 'eventos'){
                     obtenerBenecifiosEventos(true).then(function(response) {
+                        var eventos = JSON.parse(response);
                         console.log('1');
                         console.log(JSON.parse(response).datos);
-                        console.log('2');
-                        console.log(JSON.stringify(response.datos));
-                        /*console.log("Total eventos: *" +eventos.datos.eventos.length);
-                         for(i = 0; i < eventos.datos.eventos.length; i++){
-                         console.log(eventos.datos.eventos[i].marca);
-                         }*/
+                        console.log("Total eventos: *" +eventos.datos.eventos.length);
+                        for(i = 0; i < eventos.datos.eventos.length; i++){
+                            console.log(eventos.datos.eventos[i].marca);
+                        }
                     }, function(error){
                         console.log("Error en promesa: "+error);
                     });
