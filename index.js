@@ -114,9 +114,10 @@ var obtenerBenecifiosEventos = function(id) {
     var defer = q.defer();
     var header = {
         Authorization: "Basic ZXZlcmlzOmV2ZXJpc2FwcHNAdGVsZWZvbmljYS5jb20=",
-        'Content-Type' : 'application/json'
+        'Content-Type' : 'application/x-www-form-urlencoded'
     };
     var options = {
+        //uri: 'https://api-test.movistar.cl/loyalty/V2/balance/16737414-K',4
         uri: 'https://api.movistar.cl/catalog/V2/loyalty/benefits/events?apikey=w8kfm8dYR59V3Ithu6mw3CTUhD9bGhzv',
         method: 'GET',
         headers : header
