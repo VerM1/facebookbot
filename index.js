@@ -158,7 +158,6 @@ var obtenerBenecifiosEventos = function(id) {
     };
     clienteApigee(options).then(function(response) {
         defer.resolve(response);
-        console.log('Promise Resolved!');
     }, function(error){
         defer.reject(error);
         console.log('Promise Rejected!', error);
