@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request');
+var q = require('q');
 
 var app = express();
 
@@ -31,13 +32,17 @@ app.post('/webhook', function (req, res) {
 			if (!kittenMessage(event.sender.id, event.message.text)) {
                 var values = event.message.text.split(' ');
                 if(values[0] === 'eventos'){
-                    var eventos = obtenerBenecifiosEventos('id');
-                    console.log(eventos.datos);
-
-                    console.log("Total eventos: *" +eventos.datos.eventos.length);
-                    for(i = 0; i < eventos.datos.eventos.length; i++){
-                        console.log(eventos.datos.eventos[i].marca);
-                    }
+                    obtenerBenecifiosEventos('id').then(function(response) {
+                        var eventos = response;
+                        console.log('Promise Resolved!!!!!');
+                        console.log(eventos.datos);
+                        console.log("Total eventos: *" +eventos.datos.eventos.length);
+                        for(i = 0; i < eventos.datos.eventos.length; i++){
+                            console.log(eventos.datos.eventos[i].marca);
+                        }
+                    }, function(error){
+                        console.error(error);
+                    });
                 }else{
                     sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
                 }
@@ -105,6 +110,7 @@ function kittenMessage(recipientId, text) {
 };
 
 function obtenerBenecifiosEventos(id) {
+    var deferred = q.defer();
     var header = {
         Authorization: "Basic ZXZlcmlzOmV2ZXJpc2FwcHNAdGVsZWZvbmljYS5jb20=",
         'Content-Type' : 'application/json'
@@ -114,20 +120,36 @@ function obtenerBenecifiosEventos(id) {
         method: 'GET',
         headers : header
     };
-    return clienteApigee(options);
+    clienteApigee(options).then(function(response) {
+        deferred.resolve(response);
+        console.log('Promise Resolved!', response);
+    },function(error){
+        deferred.reject(error);
+        console.log('Promise Rejected!', error);
+    });
+    return deferred.promise;
 };
 
 
+var deferred = q.defer();
+setTimeout(function() {
+    deferred.resolve('hello world');
+}, 500);
+
+return deferred.promise;
+
 function clienteApigee(options){
+    var deferred = q.defer();
     request(options, function (error, salida) {
         try {
             var response = JSON.stringify(JSON.parse(salida.body));
             console.log('Response Bueno Apigee',response);
-            return response;
+            deferred.resolve(response);
         }catch(error){
             var response = salida.body;
             console.log('Response Malo Apigee',response);
-            return response;
+            deferred.reject(error);
         }
     });
+    return deferred.promise;
 }
