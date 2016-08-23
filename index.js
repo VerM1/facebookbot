@@ -32,12 +32,12 @@ app.post('/webhook', function (req, res) {
                 var values = event.message.text.split(' ');
                 if(values[0] === 'eventos'){
                     var eventos = obtenerBenecifiosEventos('id');
-                    //console.log(eventos.datos);
-                    /*
+                    console.log(eventos.datos);
+
                     console.log("Total eventos: *" +eventos.datos.eventos.length);
                     for(i = 0; i < eventos.datos.eventos.length; i++){
                         console.log(eventos.datos.eventos[i].marca);
-                    }*/
+                    }
                 }else{
                     sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
                 }
