@@ -31,7 +31,7 @@ app.post('/webhook', function (req, res) {
         var event = events[i];
         if (event.message && event.message.text) {
 			if (!kittenMessage(event.sender.id, event.message.text)) {
-                console.log(servicioEventos());
+                console.log("Servicio Eventos***: "+servicioEventos());
 				sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
 			}
 		}else if (event.postback) {
@@ -60,7 +60,7 @@ function sendMessage(recipientId, message) {
         if (error) {
             console.log('Error sending message: ', error);
         } else if (response.body.error) {
-            console.log('Error: ', response.body.error);
+            console.log('Error2: ', response.body.error);
         }
     });
 };
@@ -115,10 +115,10 @@ function servicioEventos(){
 function apigeeClient(endpoint, args){
     client.get(endpoint, args, function (data, response) {
         //console.log(data);
-        console.log("RESPONSE:"+response);
+        console.log("RESPONSE:"+response.data.datos);
         return response;
     }).on('error', function (err) {
-        console.log("Error: "+err);
+        console.log("Error 1: "+err);
         console.log('something went wrong on the request', err.request.options);
     });
 }
