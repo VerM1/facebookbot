@@ -34,7 +34,8 @@ app.post('/webhook', function (req, res) {
                 if(values[0] === 'eventos'){
                     obtenerBenecifiosEventos(true).then(function(response) {
                         console.log('Promise Resolved!!!!!');
-                        console.log("Eventos: "+response);
+                        console.log('Response:'+response);
+                        console.log(response);
                         /*console.log("Total eventos: *" +eventos.datos.eventos.length);
                          for(i = 0; i < eventos.datos.eventos.length; i++){
                          console.log(eventos.datos.eventos[i].marca);
