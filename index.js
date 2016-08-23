@@ -101,7 +101,7 @@ var obtenerBenecifiosEventos = function(id) {
         'Content-Type' : 'application/json'
     };
     var options = {
-        uri: 'https://api.movistar.cl/catalog/V2/loyalty/benefits/'+id,
+        uri: 'https://api.movistar.cl/catalog/V2/loyalty/benefits/events?apikey=w8kfm8dYR59V3Ithu6mw3CTUhD9bGhzv',
         method: 'GET',
         headers : header
     };
