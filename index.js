@@ -99,6 +99,7 @@ function eventsMessage(recipientId, text) {
     text = text || "";
     var values = text.split(' ');
     if (values[0] === 'eventos') {
+        console.log('ENTRE');
         obtenerBenecifiosEventos(true).then(function(response) {
             var eventos = JSON.parse(response);
             for(var i = 0; i < eventos.datos.eventos.length; i++){
