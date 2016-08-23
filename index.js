@@ -104,7 +104,7 @@ function kittenMessage(recipientId, text) {
     return false;   
 };
 
-var obtenerBenecifiosEventos = function(id) {
+function obtenerBenecifiosEventos(id) {
     var header = {
         Authorization: "Basic ZXZlcmlzOmV2ZXJpc2FwcHNAdGVsZWZvbmljYS5jb20=",
         'Content-Type' : 'application/json'
