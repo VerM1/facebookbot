@@ -29,22 +29,8 @@ app.post('/webhook', function (req, res) {
     for (i = 0; i < events.length; i++) {
         var event = events[i];
         if (event.message && event.message.text) {
-			if (!kittenMessage(event.sender.id, event.message.text)) {
-                var values = event.message.text.split(' ');
-                if(values[0] === 'eventos'){
-                    obtenerBenecifiosEventos(true).then(function(response) {
-                        var eventos = JSON.parse(response);
-                        for(var i = 0; i < eventos.datos.eventos.length; i++){
-                            console.log(eventos.datos.eventos[i].marca);
-                            var nombreEvento = eventos.datos.eventos[i].marca;
-                            sendMessage(event.sender.id, {text: "Se encuentra disponible: " + nombreEvento});
-                        }
-                    }, function(error){
-                        console.log("Error en promesa: "+error);
-                    });
-                }else{
-                    sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
-                }
+			if (!kittenMessage(event.sender.id, event.message.text) || !eventsMessage(event.sender.id, event.message.text)) {
+                sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
 			}
 		}else if (event.postback) {
 			console.log("Postback received: " + JSON.stringify(event.postback));
@@ -106,6 +92,50 @@ function kittenMessage(recipientId, text) {
         }
     }
     return false;   
+};
+
+// send rich message with kitten
+function eventsMessage(recipientId, text) {
+    text = text || "";
+    var values = text.split(' ');
+    if (values[0] === 'eventos') {
+        obtenerBenecifiosEventos(true).then(function(response) {
+            var eventos = JSON.parse(response);
+            for(var i = 0; i < eventos.datos.eventos.length; i++){
+                var nombreEvento = eventos.datos.eventos[i].marca;
+                var imageUrl = eventos.datos.eventos[i].imagen_mobile;
+                var greatImageUrl = eventos.datos.eventos[i].imagen_destacado_mobile;
+                imagen_destacado_mobile
+                var message = {
+                    "attachment": {
+                        "type": "template",
+                        "payload": {
+                            "template_type": "generic",
+                            "elements": [{
+                                "title": "Evento",
+                                "subtitle": nombreEvento,
+                                "image_url": imageUrl ,
+                                "buttons": [{
+                                    "type": "web_url",
+                                    "url": greatImageUrl,
+                                    "title": "Ver Detalle"
+                                }, {
+                                    "type": "postback",
+                                    "title": "	Me gusta",
+                                    "payload": "Al usuario " + recipientId + " le gusta el evento " + nombreEvento,
+                                }]
+                            }]
+                        }
+                    }
+                };
+                sendMessage(recipientId, message);
+            }
+        }, function(error){
+            console.log("Promise error: "+error);
+        });
+        return true;
+    }
+    return false;
 };
 
 var obtenerBenecifiosEventos = function(id) {
