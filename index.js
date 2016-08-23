@@ -29,9 +29,16 @@ app.post('/webhook', function (req, res) {
     for (i = 0; i < events.length; i++) {
         var event = events[i];
         if (event.message && event.message.text) {
-			if (!kittenMessage(event.sender.id, event.message.text) || !eventsMessage(event.sender.id, event.message.text)) {
-                sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
+            var flag = false;
+			if (!flag && kittenMessage(event.sender.id, event.message.text)) {
+                flag = true;
 			}
+            if(!flag && eventsMessage(event.sender.id, event.message.text)){
+                flag = true;
+            }
+            if(!flag){
+                sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
+            }
 		}else if (event.postback) {
 			console.log("Postback received: " + JSON.stringify(event.postback));
 		}	
@@ -99,7 +106,6 @@ function eventsMessage(recipientId, text) {
     text = text || "";
     var values = text.split(' ');
     if (values[0] === 'eventos') {
-        console.log('ENTRE');
         obtenerBenecifiosEventos(true).then(function(response) {
             var eventos = JSON.parse(response);
             for(var i = 0; i < eventos.datos.eventos.length; i++){
