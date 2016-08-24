@@ -4,7 +4,6 @@ var request = require('request');
 var q = require('q');
 var changeCase = require("change-case");
 
-
 var app = express();
 
 app.use(bodyParser.urlencoded({extended: false}));
