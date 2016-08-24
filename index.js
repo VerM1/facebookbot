@@ -119,6 +119,7 @@ function eventsMessage(recipientId, text) {
     var values = text.split(' ');
     if (values[0] === 'eventos' || values[0] === 'beneficios') {
 		var benefit = (values[0] === 'eventos') ? 'events' : 'discounts';
+        console.log(benefit);
         obtenerBenecifiosEventos(benefit).then(function(response) {
             var eventos = response;
             for(var i = 0; i < eventos.datos.eventos.length; i++){
@@ -188,6 +189,7 @@ var obtenerBenecifiosEventos = function(id) {
         method: 'GET',
         headers : header
     };
+    console.log(options.uri);
     clienteApigee(options).then(function(response) {
         defer.resolve(response);
     }, function(error){
@@ -197,7 +199,7 @@ var obtenerBenecifiosEventos = function(id) {
     return defer.promise;
 };
 
-/*Obtencióin de puntos*/
+/*Obtención de puntos*/
 var obtenerPuntos = function(rut) {
     var defer = q.defer();
     var header = {
