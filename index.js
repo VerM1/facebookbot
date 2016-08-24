@@ -121,6 +121,8 @@ function eventsMessage(recipientId, text) {
                 var nombreEvento = eventos.datos.eventos[i].marca;
                 var imageUrl = eventos.datos.eventos[i].imagen_mobile;
                 var greatImageUrl = eventos.datos.eventos[i].imagen_destacado_mobile;
+				var textoPromocion = eventos.datos.eventos[i].texto_promocion;
+				
                 var message = {
                     "attachment": {
                         "type": "template",
@@ -128,7 +130,7 @@ function eventsMessage(recipientId, text) {
                             "template_type": "generic",
                             "elements": [{
                                 "title": "Evento",
-                                "subtitle": nombreEvento,
+                                "subtitle": nombreEvento + ' - ' + textoPromocion,
                                 "image_url": imageUrl ,
                                 "buttons": [{
                                     "type": "web_url",
@@ -136,7 +138,7 @@ function eventsMessage(recipientId, text) {
                                     "title": "Ver Detalle"
                                 }, {
                                     "type": "postback",
-                                    "title": "	Me gusta",
+                                    "title": "Me gusta",
                                     "payload": "Al usuario " + recipientId + " le gusta el evento " + nombreEvento,
                                 }]
                             }]
@@ -155,18 +157,17 @@ function eventsMessage(recipientId, text) {
 
 var obtenerBenecifiosEventos = function(id) {
     var defer = q.defer();
-	var params = {
+	/*var params = {
         'apikey' : process.env.APIGEE_APIKEY
-    };
+    };*/
     var header = {
         Authorization: process.env.APIGEE_AUTHORIZATION,
         'Content-Type' : 'application/x-www-form-urlencoded'
     };
     var options = {
-        uri: 'https://api.movistar.cl/catalog/V2/loyalty/benefits/events',
+        uri: 'https://api.movistar.cl/catalog/V2/loyalty/benefits/events?apikey='+process.env.APIGEE_APIKEY,
         method: 'GET',
-        headers : header,
-		body: Object.toparams(params)
+        headers : header
     };
     clienteApigee(options).then(function(response) {
         defer.resolve(response);
@@ -179,7 +180,6 @@ var obtenerBenecifiosEventos = function(id) {
 
 var clienteApigee = function(options){
     var deferred = q.defer();
-	console.log(options);
     request(options, function (error, salida) {
         try {
             var response = JSON.parse(salida.body);
