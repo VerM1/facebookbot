@@ -122,7 +122,8 @@ function eventsMessage(recipientId, text) {
         console.log(benefit);
         obtenerBenecifiosEventos(benefit).then(function(response) {
             var eventos = response;
-            for(var i = 0; i < eventos.datos.eventos.length; i++){
+            var totalEventos = (values[0] === 'eventos') ? eventos.datos.eventos.length : eventos.datos.descuentos.length;
+            for(var i = 0; i < totalEventos; i++){
                 var nombreEvento = eventos.datos.eventos[i].marca;
                 var imageUrl = eventos.datos.eventos[i].imagen_mobile;
                 var greatImageUrl = eventos.datos.eventos[i].imagen_destacado_mobile;
