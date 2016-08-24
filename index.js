@@ -23,6 +23,15 @@ app.get('/webhook', function (req, res) {
     }
 });
 
+//Metodo utilizado para la parametrización de parámetros GET
+Object.toparams = function (obj) {
+    var p = [];
+    for (var key in obj) {
+        p.push(key + '=' + encodeURIComponent(obj[key]));
+    }
+    return p.join('&');
+};
+
 // handler receiving messages
 app.post('/webhook', function (req, res) {
     var events = req.body.entry[0].messaging;
