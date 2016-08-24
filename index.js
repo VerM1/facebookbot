@@ -2,6 +2,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request');
 var q = require('q');
+var changeCase = require("change-case");
+
 
 var app = express();
 
@@ -23,7 +25,7 @@ app.get('/webhook', function (req, res) {
     }
 });
 
-//Metodo utilizado para la parametrización de parámetros GET
+// Metodo utilizado para la parametrización de parámetros GET
 Object.toparams = function (obj) {
     var p = [];
     for (var key in obj) {
@@ -81,7 +83,8 @@ function sendMessage(recipientId, message) {
 function kittenMessage(recipientId, text) {
     text = text || "";
     var values = text.split(' ');
-    if (values.length === 3 && values[0] === 'kitten') {
+    var input = changeCase.lowerCase(values[0]);
+    if (values.length === 3 && input === 'kitten') {
         if (Number(values[1]) > 0 && Number(values[2]) > 0) {
             var imageUrl = "https://placekitten.com/" + Number(values[1]) + "/" + Number(values[2]);
             message = {
@@ -117,13 +120,13 @@ function kittenMessage(recipientId, text) {
 function eventsMessage(recipientId, text) {
     text = text || "";
     var values = text.split(' ');
-    if (values[0] === 'eventos' || values[0] === 'beneficios') {
-		var benefit = (values[0] === 'eventos') ? 'events' : 'discounts';
-        console.log(benefit);
+    var input = changeCase.lowerCase(values[0]);
+    if (input === 'eventos' || input === 'beneficios') {
+		var benefit = (input === 'eventos') ? 'events' : 'discounts';
         obtenerBenecifiosEventos(benefit).then(function(response) {
-            var totalEventos = (values[0] === 'eventos') ? response.datos.eventos.length : response.datos.descuentos.length;
+            var totalEventos = (input === 'eventos') ? response.datos.eventos.length : response.datos.descuentos.length;
             for(var i = 0; i < totalEventos; i++){
-                var evento = (values[0] === 'eventos') ? response.datos.eventos[i] :  response.datos.descuentos[i];
+                var evento = (input === 'eventos') ? response.datos.eventos[i] :  response.datos.descuentos[i];
                 var nombreEvento = evento.marca;
                 var imageUrl = evento.imagen_mobile;
                 var greatImageUrl = evento.imagen_destacado_mobile;
@@ -165,8 +168,9 @@ function eventsMessage(recipientId, text) {
 function pointsMessage(recipientId, text) {
     text = text || "";
     var values = text.split(' ');
-    if (values.length === 2 && values[0] === 'puntos') {
-		var rut = values[1];
+    var input = changeCase.lowerCase(values[0]);
+    if (values.length === 2 && input === 'puntos') {
+		var rut = changeCase.upperCase(values[1]);
         obtenerPuntos(rut).then(function(response) {
             var puntos = response;
 			sendMessage(recipientId, {text: 'Tus puntos actuales son ' + puntos.datos.saldoActual+', de los cuales '+puntos.datos.saldoPorVencer+' vencerán el '+puntos.datos.fechaSaldoPorVencer});
@@ -190,7 +194,6 @@ var obtenerBenecifiosEventos = function(id) {
         method: 'GET',
         headers : header
     };
-    console.log(options.uri);
     clienteApigee(options).then(function(response) {
         defer.resolve(response);
     }, function(error){
