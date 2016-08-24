@@ -45,6 +45,9 @@ app.post('/webhook', function (req, res) {
             if(!flag && eventsMessage(event.sender.id, event.message.text)){
                 flag = true;
             }
+			if(!flag && pointsMessage(event.sender.id, event.message.text)){
+				flag = true;
+			}
             if(!flag){
                 sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
             }
@@ -110,12 +113,13 @@ function kittenMessage(recipientId, text) {
     return false;   
 };
 
-// send rich message with kitten
+// send rich message with events
 function eventsMessage(recipientId, text) {
     text = text || "";
     var values = text.split(' ');
-    if (values[0] === 'eventos') {
-        obtenerBenecifiosEventos(true).then(function(response) {
+    if (values[0] === 'eventos' || values[0] === 'beneficios') {
+		var benefit = (values[0] === 'eventos') ? 'events' : 'discounts';
+        obtenerBenecifiosEventos(benefit).then(function(response) {
             var eventos = response;
             for(var i = 0; i < eventos.datos.eventos.length; i++){
                 var nombreEvento = eventos.datos.eventos[i].marca;
@@ -155,17 +159,53 @@ function eventsMessage(recipientId, text) {
     return false;
 };
 
+// send rich message with points
+function pointsMessage(recipientId, text) {
+    text = text || "";
+    var values = text.split(' ');
+    if (values.length === 2 && values[0] === 'puntos') {
+		var rut = values[1];
+        obtenerPuntos(rut).then(function(response) {
+            var puntos = response;
+			sendMessage(recipientId, {text: 'Tus puntos actuales son ' + puntos.datos.saldoActual+', de los cuales '+puntos.datos.saldoPorVencer+' vencerán el '+puntos.datos.fechaSaldoPorVencer});
+        }, function(error){
+            console.log("Promise error: "+error);
+        });
+        return true;
+    }
+    return false;
+};
+
+/*Obtención de eventos y beneficios*/
 var obtenerBenecifiosEventos = function(id) {
     var defer = q.defer();
-	/*var params = {
-        'apikey' : process.env.APIGEE_APIKEY
-    };*/
     var header = {
         Authorization: process.env.APIGEE_AUTHORIZATION,
         'Content-Type' : 'application/x-www-form-urlencoded'
     };
     var options = {
-        uri: 'https://api.movistar.cl/catalog/V2/loyalty/benefits/events?apikey='+process.env.APIGEE_APIKEY,
+        uri: 'https://api.movistar.cl/catalog/V2/loyalty/benefits/'+id+'?apikey='+process.env.APIGEE_APIKEY,
+        method: 'GET',
+        headers : header
+    };
+    clienteApigee(options).then(function(response) {
+        defer.resolve(response);
+    }, function(error){
+        defer.reject(error);
+        console.log('Promise Rejected!', error);
+    });
+    return defer.promise;
+};
+
+/*Obtencióin de puntos*/
+var obtenerPuntos = function(rut) {
+    var defer = q.defer();
+    var header = {
+        Authorization: process.env.APIGEE_AUTHORIZATION,
+        'Content-Type' : 'application/x-www-form-urlencoded'
+    };
+    var options = {
+        uri: 'https://api.movistar.cl/loyalty/V2/balance/'+rut+'?apikey='+process.env.APIGEE_APIKEY,
         method: 'GET',
         headers : header
     };
