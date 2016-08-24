@@ -179,6 +179,7 @@ var obtenerBenecifiosEventos = function(id) {
 
 var clienteApigee = function(options){
     var deferred = q.defer();
+	console.log(options);
     request(options, function (error, salida) {
         try {
             var response = JSON.parse(salida.body);
