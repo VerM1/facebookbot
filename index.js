@@ -146,14 +146,18 @@ function eventsMessage(recipientId, text) {
 
 var obtenerBenecifiosEventos = function(id) {
     var defer = q.defer();
+	var params = {
+        'apikey' : process.env.APIGEE_APIKEY
+    };
     var header = {
-        Authorization: "Basic ZXZlcmlzOmV2ZXJpc2FwcHNAdGVsZWZvbmljYS5jb20=",
+        Authorization: process.env.APIGEE_AUTHORIZATION,
         'Content-Type' : 'application/x-www-form-urlencoded'
     };
     var options = {
-        uri: 'https://api.movistar.cl/catalog/V2/loyalty/benefits/events?apikey=w8kfm8dYR59V3Ithu6mw3CTUhD9bGhzv',
+        uri: 'https://api.movistar.cl/catalog/V2/loyalty/benefits/events',
         method: 'GET',
-        headers : header
+        headers : header,
+		body: Object.toparams(params)
     };
     clienteApigee(options).then(function(response) {
         defer.resolve(response);
