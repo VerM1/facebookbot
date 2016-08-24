@@ -121,13 +121,13 @@ function eventsMessage(recipientId, text) {
 		var benefit = (values[0] === 'eventos') ? 'events' : 'discounts';
         console.log(benefit);
         obtenerBenecifiosEventos(benefit).then(function(response) {
-            var eventos = response;
-            var totalEventos = (values[0] === 'eventos') ? eventos.datos.eventos.length : eventos.datos.descuentos.length;
+            var totalEventos = (values[0] === 'eventos') ? response.datos.eventos.length : response.datos.descuentos.length;
             for(var i = 0; i < totalEventos; i++){
-                var nombreEvento = eventos.datos.eventos[i].marca;
-                var imageUrl = eventos.datos.eventos[i].imagen_mobile;
-                var greatImageUrl = eventos.datos.eventos[i].imagen_destacado_mobile;
-				var textoPromocion = eventos.datos.eventos[i].texto_promocion;
+                var evento = (values[0] === 'eventos') ? response.datos.eventos[i] :  response.datos.descuentos[i];
+                var nombreEvento = evento.marca;
+                var imageUrl = evento.imagen_mobile;
+                var greatImageUrl = evento.imagen_destacado_mobile;
+				var textoPromocion = evento.texto_promocion;
 				
                 var message = {
                     "attachment": {
