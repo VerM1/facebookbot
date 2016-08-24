@@ -19,6 +19,7 @@
   "homepage": "https://github.com/VerM1/facebookbot#readme",
   "dependencies": {
     "body-parser": "^1.15.2",
+    "change-case": "^3.0.0",
     "express": "^4.14.0",
     "node-rest-client": "^2.0.1",
     "q": "^1.4.1",
