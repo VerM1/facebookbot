@@ -16,7 +16,7 @@ app.get('/', function (req, res) {
 
 // Facebook Webhook
 app.get('/webhook', function (req, res) {
-    if (req.query['hub.verify_token'] === 'token_de_validacion_movistar') {
+    if (req.query['hub.verify_token'] === process.env.VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
     } else {
         res.send('Invalid verify token');
@@ -107,7 +107,7 @@ function eventsMessage(recipientId, text) {
     var values = text.split(' ');
     if (values[0] === 'eventos') {
         obtenerBenecifiosEventos(true).then(function(response) {
-            var eventos = JSON.parse(response);
+            var eventos = response;
             for(var i = 0; i < eventos.datos.eventos.length; i++){
                 var nombreEvento = eventos.datos.eventos[i].marca;
                 var imageUrl = eventos.datos.eventos[i].imagen_mobile;
@@ -151,7 +151,6 @@ var obtenerBenecifiosEventos = function(id) {
         'Content-Type' : 'application/x-www-form-urlencoded'
     };
     var options = {
-        //uri: 'https://api-test.movistar.cl/loyalty/V2/balance/16737414-K',4
         uri: 'https://api.movistar.cl/catalog/V2/loyalty/benefits/events?apikey=w8kfm8dYR59V3Ithu6mw3CTUhD9bGhzv',
         method: 'GET',
         headers : header
@@ -169,7 +168,7 @@ var clienteApigee = function(options){
     var deferred = q.defer();
     request(options, function (error, salida) {
         try {
-            var response = salida.body;
+            var response = JSON.parse(salida.body);
             deferred.resolve(response);
         }catch(error){
             var response = salida.body;
