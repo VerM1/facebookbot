@@ -61,6 +61,13 @@ app.post('/webhook', function (req, res) {
 
 // generic function sending messages
 function sendMessage(recipientId, message) {
+
+    obtenerWatson().then(function(response) {
+        console.log('response: '+response);
+    }, function(error){
+       console.log('error: '+error);
+    });
+    
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: process.env.PAGE_ACCESS_TOKEN},
