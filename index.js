@@ -79,8 +79,8 @@ app.post('/webhook', function (req, res) {
                         });
                     }else{
                         /*No existe sesión*/
-                        var watsonId = '';
-                        var dialogStack = '';
+                        var watsonId = null;
+                        var dialogStack = 'root';
                         obtenerWatson(event.message.text, watsonId, dialogStack).then(function(respWatson) {
                             var responseText = respWatson.output.text;
                             if( typeof responseText === 'string' ) {
@@ -276,7 +276,12 @@ var obtenerPuntos = function(rut) {
 /*Request Watson*/
 var obtenerWatson = function(text, watsonId, dialogStack) {
     var defer = q.defer();
-    var data = {'input':{'text': text},'context':{'conversation_id': watsonId, 'system': {'dialog_stack': [dialogStack]}}};
+    var data = '';
+    if(watsonId == null){
+        var data = {'input':{'text': text},'context':{'system': {'dialog_stack': [dialogStack]}}};
+    }else{
+        data = {'input':{'text': text},'context':{'conversation_id': watsonId, 'system': {'dialog_stack': [dialogStack]}}};
+    }
     var header = {
         'Content-Type' : 'application/json'
     };
