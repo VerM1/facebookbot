@@ -51,7 +51,7 @@ app.post('/webhook', function (req, res) {
 			}
             if(!flag){
                 obtenerWatson(event.message.text).then(function(response) {
-                    sendMessage(event.sender.id, {text: response.output.text[0]});
+                    sendMessage(event.sender.id, {text: response.output.text});
                 }, function(error){
                     sendMessage(event.sender.id, {text: "Error: " + event.message.text});
                 });
