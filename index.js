@@ -67,7 +67,7 @@ function sendMessage(recipientId, message) {
     }, function(error){
        console.log('error: '+error);
     });
-    
+
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: process.env.PAGE_ACCESS_TOKEN},
@@ -246,7 +246,7 @@ var obtenerWatson = function() {
         uri: 'http://pruebaconversation.mybluemix.net/api/message',
         method: 'GET',
         headers : header,
-        json: data
+        json: JSON.parse(data)
     };
     clienteWs(options).then(function(response) {
         defer.resolve(response);
