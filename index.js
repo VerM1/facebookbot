@@ -193,7 +193,7 @@ var obtenerBenecifiosEventos = function(id) {
         method: 'GET',
         headers : header
     };
-    clienteApigee(options).then(function(response) {
+    clienteWs(options).then(function(response) {
         defer.resolve(response);
     }, function(error){
         defer.reject(error);
@@ -214,7 +214,7 @@ var obtenerPuntos = function(rut) {
         method: 'GET',
         headers : header
     };
-    clienteApigee(options).then(function(response) {
+    clienteWs(options).then(function(response) {
         defer.resolve(response);
     }, function(error){
         defer.reject(error);
@@ -223,7 +223,34 @@ var obtenerPuntos = function(rut) {
     return defer.promise;
 };
 
-var clienteApigee = function(options){
+/*Request Watson*/
+var obtenerWatson = function() {
+    var defer = q.defer();
+    var data = {
+        "input":{
+            "text": "hola"
+        }
+    };
+    var header = {
+        Authorization: process.env.APIGEE_AUTHORIZATION,
+        'Content-Type' : 'application/x-www-form-urlencoded'
+    };
+    var options = {
+        uri: 'http://pruebaconversation.mybluemix.net/api/message',
+        method: 'GET',
+        headers : header,
+        json: data
+    };
+    clienteWs(options).then(function(response) {
+        defer.resolve(response);
+    }, function(error){
+        defer.reject(error);
+        console.log('Promise Rejected!', error);
+    });
+    return defer.promise;
+};
+
+var clienteWs = function(options){
     var deferred = q.defer();
     request(options, function (error, salida) {
         try {
