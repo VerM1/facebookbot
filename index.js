@@ -244,7 +244,7 @@ var obtenerWatson = function() {
         uri: 'http://pruebaconversation.mybluemix.net/api/message',
         method: 'POST',
         headers : header,
-        json: JSON.parse(data)
+        json: data
     };
     clienteWs(options).then(function(response) {
         defer.resolve(response);
