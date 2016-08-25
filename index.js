@@ -91,7 +91,7 @@ app.post('/webhook', function (req, res) {
                             watsonId = respWatson.context.conversation_id;
                             dialogStack = respWatson.output.nodes_visited[0];
                             console.log("WATSON: "+watsonId);
-                            console.log("WATSON2: "+respWatson.context);
+                            console.log(respWatson.context);
                             newSession(event.sender.id, watsonId, dialogStack, date).then(function(respNewSession){});
                         }, function(error){
                             sendMessage(event.sender.id, {text: "Error: " + event.message.text});
