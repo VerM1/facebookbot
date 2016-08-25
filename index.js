@@ -53,8 +53,10 @@ app.post('/webhook', function (req, res) {
                 obtenerWatson(event.message.text).then(function(response) {
                     var responseText = response.output.text;
                     if( typeof responseText === 'string' ) {
+                        console.log('STRING: '+responseText);
                         sendMessage(event.sender.id, {text: responseText});
                     }else{
+                        console.log('ARRAY: '+responseText[0]);
                         sendMessage(event.sender.id, {text: responseText[0]});
                     }
 
