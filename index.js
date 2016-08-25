@@ -62,7 +62,7 @@ app.post('/webhook', function (req, res) {
 // generic function sending messages
 function sendMessage(recipientId, message) {
 
-    obtenerWatson().then(function(response) {
+    obtenerWatson(message).then(function(response) {
         console.log('watson response: ',response);
     }, function(error){
     });
@@ -230,13 +230,9 @@ var obtenerPuntos = function(rut) {
 };
 
 /*Request Watson*/
-var obtenerWatson = function() {
+var obtenerWatson = function(texto) {
     var defer = q.defer();
-    var data = {
-        'input':{
-            'text': 'hola'
-        }
-    };
+    var data = {'input':{'text': texto}};
     var header = {
         'Content-Type' : 'application/json'
     };
@@ -246,11 +242,11 @@ var obtenerWatson = function() {
         headers : header,
         json: data
     };
-    clienteWs(options).then(function(response) {
+    clienteWsPayload(options).then(function(response) {
         defer.resolve(response);
     }, function(error){
         defer.reject(error);
-        console.log('Promise Rejected Watson!', error);
+        console.log('Promise Rejected!', error);
     });
     return defer.promise;
 };
@@ -263,7 +259,19 @@ var clienteWs = function(options){
             deferred.resolve(response);
         }catch(error){
             var response = salida.body;
-            console.log('salida:',response)
+            deferred.reject(error);
+        }
+    });
+    return deferred.promise;
+}
+
+var clienteWsPayload = function(options){
+    var deferred = q.defer();
+    request(options, function (error, salida) {
+        try {
+            var response = salida.body;
+            deferred.resolve(response);
+        }catch(error){
             deferred.reject(error);
         }
     });
