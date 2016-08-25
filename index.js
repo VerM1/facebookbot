@@ -66,9 +66,7 @@ app.post('/webhook', function (req, res) {
                     if(respMysql.length > 0){
                        /*Existe sesión válida*/
                         var watsonId = respMysql[0].watson_id;
-                        console.log(watsonId);
                         var dialogStack = respMysql[0].dialog_stack;
-                        console.log(dialogStack);
                         obtenerWatson(event.message.text, watsonId, dialogStack).then(function(respWatson) {
                             var responseText = respWatson.output.text;
                             if( typeof responseText === 'string' ) {
@@ -76,6 +74,24 @@ app.post('/webhook', function (req, res) {
                             }else{
                                 sendMessage(event.sender.id, {text: responseText[0]});
                             }
+                        }, function(error){
+                            sendMessage(event.sender.id, {text: "Error: " + event.message.text});
+                        });
+                    }else{
+                        /*No existe sesión*/
+                        var watsonId = '';
+                        var dialogStack = '';
+                        obtenerWatson(event.message.text, watsonId, dialogStack).then(function(respWatson) {
+                            var responseText = respWatson.output.text;
+                            if( typeof responseText === 'string' ) {
+                                sendMessage(event.sender.id, {text: responseText});
+                            }else{
+                                sendMessage(event.sender.id, {text: responseText[0]});
+                            }
+                            var conversationId = respWatson.context.conversation_id;
+                            var dialogStack = respWatson.output.nodes_visited[0];
+
+                            newSession(event.sender.id, conversationId, dialogStack, date).then(function(respNewSession){});
                         }, function(error){
                             sendMessage(event.sender.id, {text: "Error: " + event.message.text});
                         });
