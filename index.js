@@ -60,10 +60,9 @@ app.post('/webhook', function (req, res) {
 				flag = true;
 			}
             if(!flag){
-                var date = moment().format('YYYY-MM-DD HH:mm:ss');
+                //var date = moment().format('YYYY-MM-DD HH:mm:ss');
                 checkSession(event.sender.id).then(function(respMysql){
-                    console.log('mysql: '+respMysql);
-
+                    console.log(respMysql);
                     obtenerWatson(event.sender.id, event.message.text).then(function(respWatson) {
                         var responseText = respWatson.output.text;
                         if( typeof responseText === 'string' ) {
@@ -71,7 +70,6 @@ app.post('/webhook', function (req, res) {
                         }else{
                             sendMessage(event.sender.id, {text: responseText[0]});
                         }
-
                     }, function(error){
                         sendMessage(event.sender.id, {text: "Error: " + event.message.text});
                     });
@@ -314,7 +312,6 @@ var newSession = function (recipientId, conversationId, dialogStack, datetime){
 var checkSession = function (recipientId){
     var defer = q.defer();
     var query = 'select facebook_id, watson_id, dialog_stack, datetime from session where facebook_id = "'+recipientId+'" order by id desc';
-    console.log('query: '+query);
     clienteMysql(query).then(function(response) {
         defer.resolve(response);
     }, function(error){
