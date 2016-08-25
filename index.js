@@ -61,19 +61,25 @@ app.post('/webhook', function (req, res) {
 				flag = true;
 			}
             if(!flag){
-                //var date = moment().format('YYYY-MM-DD HH:mm:ss');
-                checkSession(event.sender.id).then(function(respMysql){
-                    console.log(respMysql);
-                    obtenerWatson(event.sender.id, event.message.text).then(function(respWatson) {
-                        var responseText = respWatson.output.text;
-                        if( typeof responseText === 'string' ) {
-                            sendMessage(event.sender.id, {text: responseText});
-                        }else{
-                            sendMessage(event.sender.id, {text: responseText[0]});
-                        }
-                    }, function(error){
-                        sendMessage(event.sender.id, {text: "Error: " + event.message.text});
-                    });
+                var date = moment().format('YYYY-MM-DD HH:mm:ss');
+                checkSession(event.sender.id, date).then(function(respMysql){
+                    if(respMysql.length > 0){
+                       /*Existe sesión válida*/
+                        var watsonId = respMysql[0].watson_id;
+                        console.log(watsonId);
+                        var dialogStack = respMysql[0].dialog_stack;
+                        console.log(dialogStack);
+                        obtenerWatson(event.message.text, watsonId, dialogStack).then(function(respWatson) {
+                            var responseText = respWatson.output.text;
+                            if( typeof responseText === 'string' ) {
+                                sendMessage(event.sender.id, {text: responseText});
+                            }else{
+                                sendMessage(event.sender.id, {text: responseText[0]});
+                            }
+                        }, function(error){
+                            sendMessage(event.sender.id, {text: "Error: " + event.message.text});
+                        });
+                    }
                 }, function(error){
                     console.log('mysql error: '+error);
                 });
@@ -251,9 +257,9 @@ var obtenerPuntos = function(rut) {
 };
 
 /*Request Watson*/
-var obtenerWatson = function(recipientId, text) {
+var obtenerWatson = function(text, watsonId, dialogStack) {
     var defer = q.defer();
-    var data = {'input':{'text': text},"context":{'conversation_id': recipientId,'defaultCounter': 0}};
+    var data = {'input':{'text': text},'context':{'conversation_id': watsonId, 'system': {'dialog_stack': [dialogStack]}}};
     var header = {
         'Content-Type' : 'application/json'
     };
@@ -310,7 +316,8 @@ var newSession = function (recipientId, conversationId, dialogStack, datetime){
     });
     return defer.promise
 }
-var checkSession = function (recipientId){
+var checkSession = function (recipientId, date){
+    //falta agregar date al select
     var defer = q.defer();
     var query = 'select facebook_id, watson_id, dialog_stack, datetime from session where facebook_id = "'+recipientId+'" order by id desc';
     clienteMysql(query).then(function(response) {
