@@ -84,9 +84,9 @@ function sendMessage(recipientId, message) {
         }
     }, function(error, response, body) {
         if (error) {
-            console.log('Error sending message: ', error);
+            console.log('Error sending message1: ', error);
         } else if (response.body.error) {
-            //console.log('Error: ', response.body.error);
+            console.log('Error sending message2: ', response.body.error);
         }
     });
 };
