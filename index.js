@@ -88,10 +88,11 @@ app.post('/webhook', function (req, res) {
                             }else{
                                 sendMessage(event.sender.id, {text: responseText[0]});
                             }
-                            var conversationId = respWatson.context.conversation_id;
-                            var dialogStack = respWatson.output.nodes_visited[0];
-
-                            newSession(event.sender.id, conversationId, dialogStack, date).then(function(respNewSession){});
+                            watsonId = respWatson.context.conversation_id;
+                            dialogStack = respWatson.output.nodes_visited[0];
+                            console.log("WATSON: "+watsonId);
+                            console.log("WATSON2: "+respWatson.context);
+                            newSession(event.sender.id, watsonId, dialogStack, date).then(function(respNewSession){});
                         }, function(error){
                             sendMessage(event.sender.id, {text: "Error: " + event.message.text});
                         });
