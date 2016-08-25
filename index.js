@@ -63,9 +63,8 @@ app.post('/webhook', function (req, res) {
 function sendMessage(recipientId, message) {
 
     obtenerWatson().then(function(response) {
-        console.log('response: '+response);
+        console.log('watson response: ',response);
     }, function(error){
-       console.log('error: '+error);
     });
 
     request({
@@ -245,13 +244,13 @@ var obtenerWatson = function() {
         uri: 'http://pruebaconversation.mybluemix.net/api/message',
         method: 'POST',
         headers : header,
-        json: data
+        json: JSON.stringify(data)
     };
     clienteWs(options).then(function(response) {
         defer.resolve(response);
     }, function(error){
         defer.reject(error);
-        console.log('Promise Rejected!', error);
+        console.log('Promise Rejected Watson!', error);
     });
     return defer.promise;
 };
