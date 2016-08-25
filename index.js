@@ -50,13 +50,11 @@ app.post('/webhook', function (req, res) {
 				flag = true;
 			}
             if(!flag){
-                obtenerWatson(event.message.text).then(function(response) {
+                obtenerWatson(event.sender.id, event.message.text).then(function(response) {
                     var responseText = response.output.text;
                     if( typeof responseText === 'string' ) {
-                        console.log('STRING: '+responseText);
                         sendMessage(event.sender.id, {text: responseText});
                     }else{
-                        console.log('ARRAY: '+responseText[0]);
                         sendMessage(event.sender.id, {text: responseText[0]});
                     }
 
@@ -237,9 +235,9 @@ var obtenerPuntos = function(rut) {
 };
 
 /*Request Watson*/
-var obtenerWatson = function(texto) {
+var obtenerWatson = function(recipientId, text) {
     var defer = q.defer();
-    var data = {'input':{'text': texto}};
+    var data = {'input':{'text': text},"context":{'conversation_id': recipientId,'defaultCounter': 0}};
     var header = {
         'Content-Type' : 'application/json'
     };
