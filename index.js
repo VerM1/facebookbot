@@ -50,7 +50,12 @@ app.post('/webhook', function (req, res) {
 				flag = true;
 			}
             if(!flag){
-                sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
+                obtenerWatson(event.message.text).then(function(response) {
+                    sendMessage(event.sender.id, {text: response.output.text[0]});
+                }, function(error){
+                    sendMessage(event.sender.id, {text: "Error: " + event.message.text});
+                });
+                //sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
             }
 		}else if (event.postback) {
 			console.log("Postback received: " + JSON.stringify(event.postback));
@@ -61,13 +66,6 @@ app.post('/webhook', function (req, res) {
 
 // generic function sending messages
 function sendMessage(recipientId, message) {
-
-    obtenerWatson(message).then(function(response) {
-        console.log('watson request: ',message);
-        console.log('watson response: ',response);
-    }, function(error){
-    });
-
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: process.env.PAGE_ACCESS_TOKEN},
