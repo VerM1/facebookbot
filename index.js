@@ -234,19 +234,18 @@ var obtenerPuntos = function(rut) {
 var obtenerWatson = function() {
     var defer = q.defer();
     var data = {
-        "input":{
-            "text": "hola"
+        'input':{
+            'text': 'hola'
         }
     };
     var header = {
-        Authorization: process.env.APIGEE_AUTHORIZATION,
-        'Content-Type' : 'application/x-www-form-urlencoded'
+        'Content-Type' : 'application/json'
     };
     var options = {
         uri: 'http://pruebaconversation.mybluemix.net/api/message',
-        method: 'GET',
+        method: 'POST',
         headers : header,
-        json: JSON.parse(data)
+        json: data
     };
     clienteWs(options).then(function(response) {
         defer.resolve(response);
