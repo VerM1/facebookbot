@@ -327,7 +327,6 @@ var clienteMysql = function(query){
     connection.connect();
     connection.query(query, function(err, rows) {
         if(!err){
-            console.log('The solution is: ', rows[0].solution);
             deferred.resolve(rows);
         }else{
             deferred.reject(err);
