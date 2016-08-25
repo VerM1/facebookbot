@@ -3,7 +3,16 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var q = require('q');
 var changeCase = require("change-case");
+var mysql      = require('mysql');
+var moment = require('moment');
 
+/*DEFAULT CONNECTIONS*/
+var connection = mysql.createConnection({
+    host     : '169.53.247.180:9123',
+    user     : 'everis',
+    password : 'everis123',
+    database : 'asistentevirtual'
+});
 var app = express();
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -50,16 +59,23 @@ app.post('/webhook', function (req, res) {
 				flag = true;
 			}
             if(!flag){
-                obtenerWatson(event.sender.id, event.message.text).then(function(response) {
-                    var responseText = response.output.text;
-                    if( typeof responseText === 'string' ) {
-                        sendMessage(event.sender.id, {text: responseText});
-                    }else{
-                        sendMessage(event.sender.id, {text: responseText[0]});
-                    }
+                var date = moment().format('YYYY-MM-DD HH:mm:ss');
+                checkSession(event.sender.id).then(function(respMysql){
+                    console.log('mysql: '+respMysql);
+                    
+                    obtenerWatson(event.sender.id, event.message.text).then(function(respWatson) {
+                        var responseText = respWatson.output.text;
+                        if( typeof responseText === 'string' ) {
+                            sendMessage(event.sender.id, {text: responseText});
+                        }else{
+                            sendMessage(event.sender.id, {text: responseText[0]});
+                        }
 
+                    }, function(error){
+                        sendMessage(event.sender.id, {text: "Error: " + event.message.text});
+                    });
                 }, function(error){
-                    sendMessage(event.sender.id, {text: "Error: " + event.message.text});
+                    console.log('mysql error: '+error);
                 });
                 //sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
             }
@@ -280,5 +296,42 @@ var clienteWsPayload = function(options){
             deferred.reject(error);
         }
     });
+    return deferred.promise;
+}
+/*MYSQL
+* */
+var newSession = function (recipientId, conversationId, dialogStack, datetime){
+    var defer = q.defer();
+    var query = 'insert into session (facebook_id, watson_id, dialog_stack, datetime) values ("'+recipientId+'","'+conversationId+'","'+dialogStack+'","'+datetime+'")';
+    clienteMysql(query).then(function(response) {
+        defer.resolve(response);
+    }, function(error){
+        defer.reject(error);
+    });
+    return defer.promise
+}
+var checkSession = function (recipientId){
+    var defer = q.defer();
+    var query = 'select facebook_id, watson_id, dialog_stack, datetime where facebook_id = "'+recipientId+'" order by id desc';
+    console.log('query: '+query);
+    clienteMysql(query).then(function(response) {
+        defer.resolve(response);
+    }, function(error){
+        defer.reject(error);
+    });
+    return defer.promise;
+}
+var clienteMysql = function(query){
+    var deferred = q.defer();
+    connection.connect();
+    connection.query(query, function(err, rows) {
+        if(!err){
+            console.log('The solution is: ', rows[0].solution);
+            deferred.resolve(rows);
+        }else{
+            deferred.reject(err);
+        }
+    });
+    connection.end();
     return deferred.promise;
 }
