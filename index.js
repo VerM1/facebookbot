@@ -3,13 +3,14 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var q = require('q');
 var changeCase = require("change-case");
-var mysql      = require('mysql');
+var mysql = require('mysql');
 var moment = require('moment');
 
 /*DEFAULT CONNECTIONS*/
-var connection = mysql.createConnection({
+var pool = mysql.createPool({
+    connectionLimit : 5000,
     host     : '169.53.247.180',
-    port     : '9123',
+    port     : 9123,
     user     : 'everis',
     password : 'everis123',
     database : 'asistentevirtual'
@@ -322,14 +323,19 @@ var checkSession = function (recipientId){
 
 var clienteMysql = function(query){
     var deferred = q.defer();
-    connection.connect();
-    connection.query(query, function(err, rows) {
+    pool.getConnection(function(err, connection){
         if(!err){
-            deferred.resolve(rows);
+            connection.query(query, function(error, rows) {
+                if(!error){
+                    deferred.resolve(rows);
+                }else{
+                    deferred.reject(err);
+                }
+            });
         }else{
             deferred.reject(err);
         }
+        connection.release();
     });
-    connection.end();
     return deferred.promise;
 }
