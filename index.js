@@ -8,7 +8,8 @@ var moment = require('moment');
 
 /*DEFAULT CONNECTIONS*/
 var connection = mysql.createConnection({
-    host     : '169.53.247.180:9123',
+    host     : '169.53.247.180',
+    port     : '9123',
     user     : 'everis',
     password : 'everis123',
     database : 'asistentevirtual'
@@ -62,7 +63,7 @@ app.post('/webhook', function (req, res) {
                 var date = moment().format('YYYY-MM-DD HH:mm:ss');
                 checkSession(event.sender.id).then(function(respMysql){
                     console.log('mysql: '+respMysql);
-                    
+
                     obtenerWatson(event.sender.id, event.message.text).then(function(respWatson) {
                         var responseText = respWatson.output.text;
                         if( typeof responseText === 'string' ) {
