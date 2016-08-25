@@ -63,6 +63,7 @@ app.post('/webhook', function (req, res) {
 function sendMessage(recipientId, message) {
 
     obtenerWatson(message).then(function(response) {
+        console.log('watson request: ',message);
         console.log('watson response: ',response);
     }, function(error){
     });
