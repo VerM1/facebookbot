@@ -259,11 +259,11 @@ var clienteWs = function(options){
     var deferred = q.defer();
     request(options, function (error, salida) {
         try {
-            console.log('salida:',salida)
             var response = JSON.parse(salida.body);
             deferred.resolve(response);
         }catch(error){
             var response = salida.body;
+            console.log('salida:',response)
             deferred.reject(error);
         }
     });
