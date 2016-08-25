@@ -319,6 +319,7 @@ var checkSession = function (recipientId){
     });
     return defer.promise;
 }
+
 var clienteMysql = function(query){
     var deferred = q.defer();
     connection.connect();
