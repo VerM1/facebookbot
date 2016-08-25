@@ -313,7 +313,7 @@ var newSession = function (recipientId, conversationId, dialogStack, datetime){
 }
 var checkSession = function (recipientId){
     var defer = q.defer();
-    var query = 'select facebook_id, watson_id, dialog_stack, datetime where facebook_id = "'+recipientId+'" order by id desc';
+    var query = 'select facebook_id, watson_id, dialog_stack, datetime from session where facebook_id = "'+recipientId+'" order by id desc';
     console.log('query: '+query);
     clienteMysql(query).then(function(response) {
         defer.resolve(response);
