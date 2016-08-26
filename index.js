@@ -170,12 +170,12 @@ function eventsMessage(recipientId, text) {
     text = text || "";
     var values = text.split(' ');
     var input = changeCase.lowerCase(values[0]);
-    if (input === 'eventos' || input === 'beneficios') {
-		var benefit = (input === 'eventos') ? 'events' : 'discounts';
+    if (input === '#eventos' || input === '#beneficios') {
+		var benefit = (input === '#eventos') ? 'events' : 'discounts';
         obtenerBenecifiosEventos(benefit).then(function(response) {
-            var totalEventos = (input === 'eventos') ? response.datos.eventos.length : response.datos.descuentos.length;
+            var totalEventos = (input === '#eventos') ? response.datos.eventos.length : response.datos.descuentos.length;
             for(var i = 0; i < totalEventos; i++){
-                var evento = (input === 'eventos') ? response.datos.eventos[i] :  response.datos.descuentos[i];
+                var evento = (input === '#eventos') ? response.datos.eventos[i] :  response.datos.descuentos[i];
                 var nombreEvento = evento.marca;
                 var imageUrl = evento.imagen_mobile;
                 var greatImageUrl = evento.imagen_destacado_mobile;
