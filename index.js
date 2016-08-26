@@ -337,10 +337,9 @@ var newSession = function (recipientId, conversationId, dialogStack, datetime){
     return defer.promise
 }
 var checkSession = function (recipientId, date){
-    //falta agregar date al select
     var defer = q.defer();
     var referDate = moment().subtract(1, "hour").format('YYYY-MM-DD HH:mm:ss');
-    var query = 'select facebook_id, watson_id, dialog_stack, datetime from session where facebook_id = "'+recipientId+'" and datetime < =  "'+referDate+'" order by id desc';
+    var query = 'select facebook_id, watson_id, dialog_stack, datetime from session where facebook_id = "'+recipientId+'" and datetime >=  "'+referDate+'" order by id desc';
     console.log(query);
     clienteMysql(query).then(function(response) {
         defer.resolve(response);
