@@ -276,7 +276,7 @@ var obtenerWatson = function(text, watsonId, dialogStack) {
     var defer = q.defer();
     var data = '';
     if(watsonId == null){
-        var data = {'input':{'text': text},'context':{'system': {'dialog_stack': [dialogStack]}}};
+        var data = {'input':{'text': text}};
     }else{
         data = {'input':{'text': text},'context':{'conversation_id': watsonId, 'system': {'dialog_stack': [dialogStack]}}};
     }
