@@ -90,8 +90,6 @@ app.post('/webhook', function (req, res) {
                             }
                             watsonId = respWatson.context.conversation_id;
                             dialogStack = respWatson.output.nodes_visited[0];
-                            console.log("WATSON: "+watsonId);
-                            console.log(respWatson.context);
                             newSession(event.sender.id, watsonId, dialogStack, date).then(function(respNewSession){});
                         }, function(error){
                             sendMessage(event.sender.id, {text: "Error: " + event.message.text});
@@ -123,7 +121,7 @@ function sendMessage(recipientId, message) {
         if (error) {
             console.log('Error sending message1: ', error);
         } else if (response.body.error) {
-            console.log('Error sending message2: ', response.body.error);
+            //console.log('Error sending message2: ', response.body.error);
         }
     });
 };
@@ -341,7 +339,9 @@ var newSession = function (recipientId, conversationId, dialogStack, datetime){
 var checkSession = function (recipientId, date){
     //falta agregar date al select
     var defer = q.defer();
-    var query = 'select facebook_id, watson_id, dialog_stack, datetime from session where facebook_id = "'+recipientId+'" order by id desc';
+    var referDate = moment().subtract(1, "hour").format('YYYY-MM-DD HH:mm:ss');
+    var query = 'select facebook_id, watson_id, dialog_stack, datetime from session where facebook_id = "'+recipientId+'" and datetime < =  "'+referDate+'" order by id desc';
+    console.log(query);
     clienteMysql(query).then(function(response) {
         defer.resolve(response);
     }, function(error){
