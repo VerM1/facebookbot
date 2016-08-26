@@ -74,6 +74,9 @@ app.post('/webhook', function (req, res) {
                             }else{
                                 sendMessage(event.sender.id, {text: responseText[0]});
                             }
+                            watsonId = respWatson.context.conversation_id;
+                            dialogStack = respWatson.output.nodes_visited[0];
+                            updateSession(event.sender.id, watsonId, dialogStack).then(function(respUpdSession){});
                         }, function(error){
                             sendMessage(event.sender.id, {text: "Error: " + event.message.text});
                         });
@@ -98,7 +101,6 @@ app.post('/webhook', function (req, res) {
                 }, function(error){
                     console.log('mysql error: '+error);
                 });
-                //sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
             }
 		}else if (event.postback) {
 			console.log("Postback received: " + JSON.stringify(event.postback));
@@ -335,6 +337,18 @@ var newSession = function (recipientId, conversationId, dialogStack, datetime){
         defer.reject(error);
     });
     return defer.promise
+}
+var updateSession = function (recipientId, conversationId, dialogStack){
+    var defer = q.defer();
+    var referDate = moment().subtract(1, "hour").format('YYYY-MM-DD HH:mm:ss');
+    var query = 'update session set dialog_stack = "'+dialogStack+' where facebook_id = "'+recipientId+'" and watson_id = "'+conversationId+'" and datetime >=  "'+referDate+'"';
+    console.log(query);
+    clienteMysql(query).then(function(response) {
+        defer.resolve(response);
+    }, function(error){
+        defer.reject(error);
+    });
+    return defer.promise;
 }
 var checkSession = function (recipientId, date){
     var defer = q.defer();
