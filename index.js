@@ -341,7 +341,7 @@ var newSession = function (recipientId, conversationId, dialogStack, datetime){
 var updateSession = function (recipientId, conversationId, dialogStack){
     var defer = q.defer();
     var referDate = moment().subtract(1, "hour").format('YYYY-MM-DD HH:mm:ss');
-    var query = 'update session set dialog_stack = "'+dialogStack+' where facebook_id = "'+recipientId+'" and watson_id = "'+conversationId+'" and datetime >=  "'+referDate+'"';
+    var query = 'update session set dialog_stack = "'+dialogStack+'" where facebook_id = "'+recipientId+'" and watson_id = "'+conversationId+'" and datetime >=  "'+referDate+'"';
     console.log(query);
     clienteMysql(query).then(function(response) {
         defer.resolve(response);
