@@ -9,11 +9,11 @@ var moment = require('moment');
 /*DEFAULT CONNECTIONS*/
 var pool = mysql.createPool({
     connectionLimit : 5000,
-    host     : '169.53.247.180',
-    port     : 9123,
-    user     : 'everis',
-    password : 'everis123',
-    database : 'asistentevirtual'
+    host     : process.env.DATABASE_HOST,
+    port     : Number(process.env.DATABASE_PORT),
+    user     : process.env.DATABASE_USER,
+    password : process.env.DATABASE_PASS,
+    database : process.env.DATABASE_SCHEMA
 });
 var app = express();
 
@@ -121,7 +121,7 @@ function sendMessage(recipientId, message) {
         }
     }, function(error, response, body) {
         if (error) {
-            console.log('Error sending message1: ', error);
+            console.log('Error sending message: ', error);
         } else if (response.body.error) {
             //console.log('Error sending message2: ', response.body.error);
         }
@@ -286,7 +286,7 @@ var obtenerWatson = function(text, watsonId, dialogStack) {
         'Content-Type' : 'application/json'
     };
     var options = {
-        uri: 'http://pruebaconversation.mybluemix.net/api/message',
+        uri: process.env.BLUEMIX_ENDPOINT,
         method: 'POST',
         headers : header,
         json: data
