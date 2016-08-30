@@ -342,7 +342,6 @@ var updateSession = function (recipientId, conversationId, dialogStack){
     var defer = q.defer();
     var referDate = moment().subtract(1, "hour").format('YYYY-MM-DD HH:mm:ss');
     var query = 'update session set dialog_stack = "'+dialogStack+'" where facebook_id = "'+recipientId+'" and watson_id = "'+conversationId+'" and datetime >=  "'+referDate+'"';
-    console.log(query);
     clienteMysql(query).then(function(response) {
         defer.resolve(response);
     }, function(error){
@@ -354,7 +353,6 @@ var checkSession = function (recipientId, date){
     var defer = q.defer();
     var referDate = moment().subtract(1, "hour").format('YYYY-MM-DD HH:mm:ss');
     var query = 'select facebook_id, watson_id, dialog_stack, datetime from session where facebook_id = "'+recipientId+'" and datetime >=  "'+referDate+'" order by id desc';
-    console.log(query);
     clienteMysql(query).then(function(response) {
         defer.resolve(response);
     }, function(error){
