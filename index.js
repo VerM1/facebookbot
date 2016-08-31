@@ -51,16 +51,10 @@ app.post('/webhook', function (req, res) {
         var event = events[i];
         if (event.message && event.message.text) {
             var flag = false;
-			if (!flag && kittenMessage(event.sender.id, event.message.text)) {
-                flag = true;
-			}
-            if(!flag && eventsMessage(event.sender.id, event.message.text)){
-                flag = true;
-            }
-			if(!flag && pointsMessage(event.sender.id, event.message.text)){
-				flag = true;
-			}
-            if(!flag){
+			if (!flag && kittenMessage(event.sender.id, event.message.text)) {flag = true;}
+            if (!flag && eventsMessage(event.sender.id, event.message.text)) {flag = true;}
+			if (!flag && pointsMessage(event.sender.id, event.message.text)) {flag = true;}
+            if (!flag){
                 var date = moment().format('YYYY-MM-DD HH:mm:ss');
                 checkSession(event.sender.id, date).then(function(respMysql){
                     if(respMysql.length > 0){
@@ -121,9 +115,9 @@ function sendMessage(recipientId, message) {
         }
     }, function(error, response, body) {
         if (error) {
-            console.log('Error sending message: ', error);
+            console.log('I. Error sending message: ', error);
         } else if (response.body.error) {
-            //console.log('Error sending message2: ', response.body.error);
+            console.log('II. Error sending message: ', response.body.error);
         }
     });
 };
@@ -218,7 +212,7 @@ function pointsMessage(recipientId, text) {
     text = text || "";
     var values = text.split(' ');
     var input = changeCase.lowerCase(values[0]);
-    if (values.length === 2 && input === 'puntos') {
+    if (values.length === 2 && input === '#puntos') {
 		var rut = changeCase.upperCase(values[1]);
         obtenerPuntos(rut).then(function(response) {
             var puntos = response;
