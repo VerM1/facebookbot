@@ -122,43 +122,6 @@ function sendMessage(recipientId, message) {
     });
 };
 
-// send rich message with kitten
-function kittenMessage(recipientId, text) {
-    text = text || "";
-    var values = text.split(' ');
-    var input = changeCase.lowerCase(values[0]);
-    if (values.length === 3 && input === 'kitten') {
-        if (Number(values[1]) > 0 && Number(values[2]) > 0) {
-            var imageUrl = "https://placekitten.com/" + Number(values[1]) + "/" + Number(values[2]);
-            message = {
-                "attachment": {
-                    "type": "template",
-                    "payload": {
-                        "template_type": "generic",
-                        "elements": [{
-                            "title": "Kitten",
-                            "subtitle": "Cute kitten picture",
-                            "image_url": imageUrl ,
-                            "buttons": [{
-                                "type": "web_url",
-                                "url": imageUrl,
-                                "title": "Show kitten"
-                                }, {
-                                "type": "postback",
-                                "title": "	I like this",
-                                "payload": "User " + recipientId + " likes kitten " + imageUrl,
-                            }]
-                        }]
-                    }
-                }
-            };
-            sendMessage(recipientId, message);       
-            return true;
-        }
-    }
-    return false;   
-};
-
 // send rich message with events
 function eventsMessage(recipientId, text) {
     text = text || "";
@@ -225,7 +188,8 @@ function pointsMessage(recipientId, text) {
     return false;
 };
 
-/*Obtención de eventos y beneficios*/
+/*APIGEE SECTION
+* */
 var obtenerBenecifiosEventos = function(id) {
     var defer = q.defer();
     var header = {
@@ -246,7 +210,6 @@ var obtenerBenecifiosEventos = function(id) {
     return defer.promise;
 };
 
-/*Obtención de puntos*/
 var obtenerPuntos = function(rut) {
     var defer = q.defer();
     var header = {
@@ -267,7 +230,8 @@ var obtenerPuntos = function(rut) {
     return defer.promise;
 };
 
-/*Request Watson*/
+/*WATSON SECTION
+* */
 var obtenerWatson = function(text, watsonId, dialogStack) {
     var defer = q.defer();
     var data = '';
@@ -320,7 +284,8 @@ var clienteWsPayload = function(options){
     });
     return deferred.promise;
 }
-/*MYSQL
+
+/*MYSQL SECTION
 * */
 var newSession = function (recipientId, conversationId, dialogStack, datetime){
     var defer = q.defer();
@@ -334,8 +299,9 @@ var newSession = function (recipientId, conversationId, dialogStack, datetime){
 }
 var updateSession = function (recipientId, conversationId, dialogStack){
     var defer = q.defer();
+	var date = moment().format('YYYY-MM-DD HH:mm:ss');
     var referDate = moment().subtract(1, "hour").format('YYYY-MM-DD HH:mm:ss');
-    var query = 'update session set dialog_stack = "'+dialogStack+'" where facebook_id = "'+recipientId+'" and watson_id = "'+conversationId+'" and datetime >=  "'+referDate+'"';
+    var query = 'update session set dialog_stack = "'+dialogStack+'", datetime = "'+date+'" where facebook_id = "'+recipientId+'" and watson_id = "'+conversationId+'" and datetime >=  "'+referDate+'"';
     clienteMysql(query).then(function(response) {
         defer.resolve(response);
     }, function(error){
@@ -363,7 +329,7 @@ var clienteMysql = function(query){
                 if(!error){
                     deferred.resolve(rows);
                 }else{
-                    deferred.reject(err);
+                    deferred.reject(error);
                 }
             });
         }else{
