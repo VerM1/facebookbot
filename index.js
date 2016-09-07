@@ -1,3 +1,4 @@
+var cfenv = require('cfenv');
 var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request');
@@ -51,9 +52,9 @@ app.post('/webhook', function (req, res) {
         var event = events[i];
         if (event.message && event.message.text) {
             var flag = false;
-			if (!flag && kittenMessage(event.sender.id, event.message.text)) {flag = true;}
             if (!flag && eventsMessage(event.sender.id, event.message.text)) {flag = true;}
 			if (!flag && pointsMessage(event.sender.id, event.message.text)) {flag = true;}
+            if (!flag && offersMessage(event.sender.id, event.message.text)) {flag = true;}
             if (!flag){
                 var date = moment().format('YYYY-MM-DD HH:mm:ss');
                 checkSession(event.sender.id, date).then(function(respMysql){
@@ -62,15 +63,25 @@ app.post('/webhook', function (req, res) {
                         var watsonId = respMysql[0].watson_id;
                         var dialogStack = respMysql[0].dialog_stack;
                         obtenerWatson(event.message.text, watsonId, dialogStack).then(function(respWatson) {
-                            var responseText = respWatson.output.text;
-                            if( typeof responseText === 'string' ) {
-                                sendMessage(event.sender.id, {text: responseText});
+                            if(checkWatsonConfidence(respWatson)){
+                                var responseText = respWatson.output.text;
+                                if( typeof responseText === 'string' ) {sendMessage(event.sender.id, {text: responseText});}
+                                else{sendMessage(event.sender.id, {text: responseText[0]});}
+                                watsonId = respWatson.context.conversation_id;
+                                dialogStack = respWatson.output.nodes_visited[0];
+                                updateSession(event.sender.id, watsonId, dialogStack).then(function(respUpdSession){});
                             }else{
-                                sendMessage(event.sender.id, {text: responseText[0]});
+                                obtenerWikipedia(event.message.text).then(function(respWiki) {
+                                    var cleanRespWiki = String(respWiki.query.search[0].snippet).replace(/<[^>]+>/gm, '').replace(/&quot;/g,'"').match(/(.{1,320})/g);
+                                    for(var z = 0; z< cleanRespWiki.length; z++){
+                                        sendMessage(event.sender.id, {text: cleanRespWiki[z]});
+                                    }
+                                }, function(error){
+                                    console.log('Error Wiki: '+error);
+                                });
                             }
-                            watsonId = respWatson.context.conversation_id;
-                            dialogStack = respWatson.output.nodes_visited[0];
-                            updateSession(event.sender.id, watsonId, dialogStack).then(function(respUpdSession){});
+
+
                         }, function(error){
                             sendMessage(event.sender.id, {text: "Error: " + event.message.text});
                         });
@@ -79,15 +90,23 @@ app.post('/webhook', function (req, res) {
                         var watsonId = null;
                         var dialogStack = 'root';
                         obtenerWatson(event.message.text, watsonId, dialogStack).then(function(respWatson) {
-                            var responseText = respWatson.output.text;
-                            if( typeof responseText === 'string' ) {
-                                sendMessage(event.sender.id, {text: responseText});
+                            if(checkWatsonConfidence(respWatson)){
+                                var responseText = respWatson.output.text;
+                                if( typeof responseText === 'string' ) {sendMessage(event.sender.id, {text: responseText});}
+                                else{sendMessage(event.sender.id, {text: responseText[0]});}
+                                watsonId = respWatson.context.conversation_id;
+                                dialogStack = respWatson.output.nodes_visited[0];
+                                newSession(event.sender.id, watsonId, dialogStack, date).then(function(respNewSession){});
                             }else{
-                                sendMessage(event.sender.id, {text: responseText[0]});
+                                obtenerWikipedia(event.message.text).then(function(respWiki) {
+                                    var cleanRespWiki = String(respWiki.query.search[0].snippet).replace(/<[^>]+>/gm, '').replace(/&quot;/g,'"').match(/(.{1,320})/g);
+                                    for(var z = 0; z< cleanRespWiki.length; z++){
+                                        sendMessage(event.sender.id, {text: cleanRespWiki[z]});
+                                    }
+                                }, function(error){
+                                    console.log('Error Wiki: '+error);
+                                });
                             }
-                            watsonId = respWatson.context.conversation_id;
-                            dialogStack = respWatson.output.nodes_visited[0];
-                            newSession(event.sender.id, watsonId, dialogStack, date).then(function(respNewSession){});
                         }, function(error){
                             sendMessage(event.sender.id, {text: "Error: " + event.message.text});
                         });
@@ -170,6 +189,31 @@ function eventsMessage(recipientId, text) {
     return false;
 };
 
+
+function offersMessage(recipientId, text){
+    text = text || "";
+    var values = text.split(' ');
+    var input = changeCase.lowerCase(values[0]);
+    var inputData = input.split('-');
+    if(inputData[0] === '#bolsa'){
+        if(inputData[1] === 'sms' || inputData[1] === 'internet' || inputData[1] === 'mixta'){
+            obtenerOfertas(inputData[1]).then(function(response) {
+                for(var i = 0; i < response.datos.ofertas.length; i++){
+                    var descripcion = response.datos.ofertas[i].descripcionWeb;
+                    var valor = response.datos.ofertas[i].cargoBasico;
+                    sendMessage(recipientId, {
+                        text: (i+1)+'. '+descripcion+ ' Con un valor de: $'+valor}
+                    );
+                }
+            }, function(error){
+                console.log("Promise error: "+error);
+            });
+            return true;
+        }
+    }
+    return false;
+}
+
 // send rich message with points
 function pointsMessage(recipientId, text) {
     text = text || "";
@@ -210,6 +254,30 @@ var obtenerBenecifiosEventos = function(id) {
     return defer.promise;
 };
 
+var obtenerOfertas = function(type){
+    var familia = '';
+    if(type=='sms'){familia = 9;
+    }else if(type=='internet'){familia = 12;
+    }else if(type=='mixta'){familia = 10;}
+
+    var defer = q.defer();
+    var header = {
+        Authorization: process.env.APIGEE_AUTHORIZATION,
+        'Content-Type' : 'application/x-www-form-urlencoded'
+    };
+    var options = {
+        uri: 'https://api.movistar.cl/offer/V2/feasibleOffer/56994512108?contractType=Contrato&family='+familia+'&plainCode=7R4&services=bolsa&type=mobile&apikey='+process.env.APIGEE_APIKEY,
+        method: 'GET',
+        headers : header
+    };
+    clienteWs(options).then(function(response) {
+        defer.resolve(response);
+    }, function(error){
+        defer.reject(error);
+        console.log('Promise Rejected!', error);
+    });
+    return defer.promise;
+}
 var obtenerPuntos = function(rut) {
     var defer = q.defer();
     var header = {
@@ -232,6 +300,11 @@ var obtenerPuntos = function(rut) {
 
 /*WATSON SECTION
 * */
+var checkWatsonConfidence = function(response){
+    var confidence = (response.intents[0].confidence < 0.5) ? false : true;
+    return confidence;
+};
+
 var obtenerWatson = function(text, watsonId, dialogStack) {
     var defer = q.defer();
     var data = '';
@@ -257,6 +330,26 @@ var obtenerWatson = function(text, watsonId, dialogStack) {
     });
     return defer.promise;
 };
+
+var obtenerWikipedia = function(text){
+    var defer = q.defer();
+    var header = {
+        'Content-Type' : 'application/x-www-form-urlencoded'
+    };
+    var options = {
+        uri: 'https://es.wikipedia.org/w/api.php?action=query&format=json&srprop=snippet&list=search&titles=&srsearch='+text,
+        method: 'POST',
+        headers : header
+    };
+    console.log(options.uri);
+    clienteWs(options).then(function(response) {
+        defer.resolve(response);
+    }, function(error){
+        defer.reject(error);
+        console.log('Promise Rejected!', error);
+    });
+    return defer.promise;
+}
 
 var clienteWs = function(options){
     var deferred = q.defer();
@@ -335,7 +428,12 @@ var clienteMysql = function(query){
         }else{
             deferred.reject(err);
         }
-        connection.release();
+        try {
+            connection.release();
+        }
+        catch(err) {
+            console.log('Error: '+err.message);
+        }
     });
     return deferred.promise;
 }
